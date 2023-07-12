@@ -1,5 +1,11 @@
 /* !                 COMMON                    */
 
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
 /**                   Reset                    */
 
 h1,
@@ -51,11 +57,11 @@ body {
 }
 
 /**                  Gallary                   */
-
+/* 
 :root {
   --gap: 24px;
   --carts: 4;
-}
+} */
 /* 
 .grid-list {
   display: flex;
