@@ -44,7 +44,6 @@ body {
 .container {
   width: 100%;
   max-width: 1200px;
-  padding: 0 15px;
   margin: 0 auto;
 }
 
@@ -75,12 +74,15 @@ body {
 
 /* !                 HEADER                    */
 
-.form-design {
-  position: fixed;
+.container-header {
+  /* position: fixed;
   top: 0;
   left: 0;
+    z-index: 1; */
+}
+
+.form-design {
   width: 100%;
-  z-index: 1;
   display: flex;
   align-items: center;
   height: 60px;
@@ -121,3 +123,5 @@ form.search-form button {
 form.search-form button:hover {
   background: #828588;
 }
+
+/* !                  MAIN                     */
