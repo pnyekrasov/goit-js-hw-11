@@ -10,12 +10,24 @@
 </head>
 
 <body>
-  <div class="form-design">
-    <form class="search-form" id="search-form" action="/action_page.php">
-      <input type="text" placeholder="Search images..." name="searchQuery" autocomplete="off">
-      <button type="submit"><i class="fa fa-search"></i></button>
-    </form>
-  </div>
+  <header class="form-design">
+    <div class="container">
+      <form class="search-form" id="search-form" action="/action_page.php">
+        <input type="text" name="searchQuery" autocomplete="off" placeholder="Search images...">
+        <button type="submit"><i class="fa fa-search"></i></button>
+      </form>
+    </div>
+  </header>
+  <main>
+    <ul class="gallery-list js-gallery">
+    </ul>
+    <button type="button" class="js-load is-hidden">Load more</button>
+  </main>
+
+
+
+
+
 
   <script src="js/index.js" type="module"></script>
 </body>
