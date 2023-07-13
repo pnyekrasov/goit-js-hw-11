@@ -4,9 +4,7 @@ const searchFormEl = document.querySelector('.search-form');
 const galleryListEl = document.querySelector('.gallery');
 const loadMoreBtnEl = document.querySelector('.load-more');
 
-loadMoreBtnEl.hidden = true;
-
-const pixabayReturn = new PixabayAPI();
+const pixabayReturnData = new PixabayAPI();
 
 searchFormEl.addEventListener('submit', handlerSearchImages);
 
@@ -21,8 +19,8 @@ function handlerSearchImages(e) {
     return;
   }
 
-  pixabayReturn.query = textInput;
-  pixabayReturn
+  pixabayReturnData.query = textInput;
+  pixabayReturnData
     .searchImages()
     .then(data => {
       if (data.total === 0) {
@@ -32,93 +30,25 @@ function handlerSearchImages(e) {
         return;
       }
 
-      console.log(data.total);
-
-      function createGallaryCards(array) {
-        return array
-          .map(
-            ({
-              webformatURL,
-              largeImageURL,
-              tags,
-              likes,
-              views,
-              comments,
-              downloads,
-            }) => `<li class="photo-card">
-        <img src="${webformatURL}" alt="${tags}" loading="lazy" />
-        <div class="info">
-          <p class="info-item">
-            <b>Likes</b>${likes}
-          </p>
-          <p class="info-item">
-            <b>Views</b>${views}
-          </p>
-          <p class="info-item">
-            <b>Comments</b>${comments}
-          </p>
-          <p class="info-item">
-            <b>Downloads</b>${downloads}
-          </p>
-        </div>
-      </li>`
-          )
-          .join('');
-      }
-
       galleryListEl.innerHTML = createGallaryCards(data.hits);
-
       loadMoreBtnEl.hidden = false;
     })
     .catch(console.warm);
-}
+};
 
 loadMoreBtnEl.addEventListener('click', handlerLoadMoreImages);
 
 function handlerLoadMoreImages() {
-  pixabayReturn.page += 1;
-  pixabayReturn
+  pixabayReturnData.page += 1;
+  pixabayReturnData
     .searchImages()
     .then(data => {
       if (
-        pixabayReturn.page === Math.ceil(data.total / pixabayReturn.per_page)
+        pixabayReturnData.page ===
+        Math.ceil(data.total / pixabayReturnData.per_page)
       ) {
-        console.log(
-          'Sorry, there are no images matching your search query. Please try again.'
-        );
+        console.log('Sorry, in`s end page, there are no images matching more.');
         loadMoreBtnEl.hidden = true;
-      }
-
-      function createGallaryCards(array) {
-        return array
-          .map(
-            ({
-              webformatURL,
-              largeImageURL,
-              tags,
-              likes,
-              views,
-              comments,
-              downloads,
-            }) => `<li class="photo-card">
-        <img src="${webformatURL}" alt="${tags}" loading="lazy" />
-        <div class="info">
-          <p class="info-item">
-            <b>Likes</b>${likes}
-          </p>
-          <p class="info-item">
-            <b>Views</b>${views}
-          </p>
-          <p class="info-item">
-            <b>Comments</b>${comments}
-          </p>
-          <p class="info-item">
-            <b>Downloads</b>${downloads}
-          </p>
-        </div>
-      </li>`
-          )
-          .join('');
       }
 
       galleryListEl.insertAdjacentHTML(
@@ -127,4 +57,36 @@ function handlerLoadMoreImages() {
       );
     })
     .catch(console.warm);
-}
+};
+
+function createGallaryCards(array) {
+  return array
+    .map(
+      ({
+        webformatURL,
+        largeImageURL,
+        tags,
+        likes,
+        views,
+        comments,
+        downloads,
+      }) => `<li class="photo-card">
+        <img src="${webformatURL}" alt="${tags}" loading="lazy" />
+        <div class="info">
+          <p class="info-item">
+            <b>Likes</b>${likes}
+          </p>
+          <p class="info-item">
+            <b>Views</b>${views}
+          </p>
+          <p class="info-item">
+            <b>Comments</b>${comments}
+          </p>
+          <p class="info-item">
+            <b>Downloads</b>${downloads}
+          </p>
+        </div>
+      </li>`
+    )
+    .join('');
+};
