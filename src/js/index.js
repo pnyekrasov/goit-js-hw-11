@@ -1,8 +1,17 @@
+import Notiflix from 'notiflix';
+import SimpleLightbox from 'simplelightbox';
+import 'simplelightbox/dist/simple-lightbox.min.css';
 import { PixabayAPI } from './pixabay-api';
 
 const searchFormEl = document.querySelector('.search-form');
 const galleryListEl = document.querySelector('.gallery');
-const loadMoreBtnEl = document.querySelector('.load-more');
+const targetEl = document.querySelector('.js-load-line');
+
+let options = {
+  root: null,
+  rootMargin: '300px',
+  threshold: 1.0,
+};
 
 const pixabayReturnData = new PixabayAPI();
 
@@ -15,7 +24,9 @@ function handlerSearchImages(e) {
   } = e.currentTarget;
   const textInput = searchQuery.value.trim();
   if (!textInput) {
-    console.log('!');
+    Notiflix.Notify.failure(
+      'Enter the data in the field "Search images...", please'
+    );
     return;
   }
 
@@ -23,40 +34,60 @@ function handlerSearchImages(e) {
   pixabayReturnData
     .searchImages()
     .then(data => {
+      console.log(data);
       if (data.total === 0) {
-        console.log(
+        Notiflix.Notify.failure(
           'Sorry, there are no images matching your search query. Please try again.'
         );
         return;
       }
-
       galleryListEl.innerHTML = createGallaryCards(data.hits);
-      loadMoreBtnEl.hidden = false;
+      Notiflix.Notify.success(`Hooray! We found ${data.totalHits} images.`);
+      observer.observe(targetEl);
+      // const lightbox = new SimpleLightbox('.photo-card a');
+      // lightbox.open();
     })
-    .catch(console.warm);
+    .catch(error => console.log(error));
 }
 
-loadMoreBtnEl.addEventListener('click', handlerLoadMoreImages);
+let observer = new IntersectionObserver(handlerLoadMoreImages, options);
 
-function handlerLoadMoreImages() {
-  pixabayReturnData.page += 1;
-  pixabayReturnData
-    .searchImages()
-    .then(data => {
-      if (
-        pixabayReturnData.page ===
-        Math.ceil(data.total / pixabayReturnData.per_page)
-      ) {
-        console.log('Sorry, in`s end page, there are no images matching more.');
-        loadMoreBtnEl.hidden = true;
-      }
+function handlerLoadMoreImages(entries, observer) {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      pixabayReturnData.page += 1;
+      pixabayReturnData
+        .searchImages()
+        .then(
+          data => {
+            if (
+              pixabayReturnData.page ===
+              Math.ceil(data.totalHits / pixabayReturnData.per_page)
+            ) {
+              Notiflix.Notify.info(
+                "We're sorry, but you've reached the end of search results."
+              );
+              observer.unobserve(targetEl);
+            }
 
-      galleryListEl.insertAdjacentHTML(
-        'beforeend',
-        createGallaryCards(data.hits)
-      );
-    })
-    .catch(console.warm);
+            galleryListEl.insertAdjacentHTML(
+              'beforeend',
+              createGallaryCards(data.hits)
+            );
+
+            // lightbox.refresh();
+            const lightbox = new SimpleLightbox('.photo-card a');
+          }
+          // const { height: cardHeight } = document
+          //   .querySelector(".gallery")
+          //         .firstElementChild.getBoundingClientRect();
+          //       console.log(cardHeight);
+
+          //     })
+        )
+        .catch(error => console.log(error));
+    }
+  });
 }
 
 function createGallaryCards(array) {
@@ -71,7 +102,9 @@ function createGallaryCards(array) {
         comments,
         downloads,
       }) => `<li class="photo-card">
+       <a class="photo-large" href="${largeImageURL}">
         <img class="photo" src="${webformatURL}" alt="${tags}" loading="lazy" />
+        </a>
         <div class="info">
           <p class="info-item">
             <b>Likes</b>${likes}
