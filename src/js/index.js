@@ -15,6 +15,8 @@ let options = {
 
 const pixabayReturnData = new PixabayAPI();
 
+const lightbox = new SimpleLightbox('.photo-card a');
+
 searchFormEl.addEventListener('submit', handlerSearchImages);
 
 function handlerSearchImages(e) {
@@ -42,10 +44,9 @@ function handlerSearchImages(e) {
         return;
       }
       galleryListEl.innerHTML = createGallaryCards(data.hits);
+      lightbox.open();
       Notiflix.Notify.success(`Hooray! We found ${data.totalHits} images.`);
       observer.observe(targetEl);
-      // const lightbox = new SimpleLightbox('.photo-card a');
-      // lightbox.open();
     })
     .catch(error => console.log(error));
 }
@@ -75,8 +76,7 @@ function handlerLoadMoreImages(entries, observer) {
               createGallaryCards(data.hits)
             );
 
-            // lightbox.refresh();
-            const lightbox = new SimpleLightbox('.photo-card a');
+            lightbox.refresh();
           }
           // const { height: cardHeight } = document
           //   .querySelector(".gallery")
