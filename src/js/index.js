@@ -34,7 +34,7 @@ function handlerSearchImages(e) {
       loadMoreBtnEl.hidden = false;
     })
     .catch(console.warm);
-};
+}
 
 loadMoreBtnEl.addEventListener('click', handlerLoadMoreImages);
 
@@ -57,7 +57,7 @@ function handlerLoadMoreImages() {
       );
     })
     .catch(console.warm);
-};
+}
 
 function createGallaryCards(array) {
   return array
@@ -71,7 +71,7 @@ function createGallaryCards(array) {
         comments,
         downloads,
       }) => `<li class="photo-card">
-        <img src="${webformatURL}" alt="${tags}" loading="lazy" />
+        <img class="photo" src="${webformatURL}" alt="${tags}" loading="lazy" />
         <div class="info">
           <p class="info-item">
             <b>Likes</b>${likes}
@@ -89,4 +89,4 @@ function createGallaryCards(array) {
       </li>`
     )
     .join('');
-};
+}
