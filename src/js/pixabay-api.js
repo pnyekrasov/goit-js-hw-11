@@ -1,4 +1,5 @@
 'use strict';
+import axios from 'axios';
 
 export class PixabayAPI {
   #API_KAY = '38184574-73f03994b4792e0e0e3ddcdab';
@@ -10,15 +11,10 @@ export class PixabayAPI {
   per_page = 40;
 
   searchImages() {
-    return fetch(
+    return axios.get(
       `${this.#BASE_URL}?key=${this.#API_KAY}&q=${this.query}&${
         this.#CONST_PARAMETERS
       }&page=${this.page}&per_page=${this.per_page}`
-    ).then(response => {
-      if (!response.ok) {
-        throw new Error(response.status);
-      }
-      return response.json();
-    });
+    );
   }
 }
