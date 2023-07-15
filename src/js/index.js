@@ -7,15 +7,15 @@ const searchFormEl = document.querySelector('.search-form');
 const galleryListEl = document.querySelector('.gallery');
 const targetEl = document.querySelector('.js-load-line');
 
-let options = {
+const options = {
   root: null,
-  rootMargin: '300px',
-  threshold: 1.0,
+  rootMargin: '0px',
+  threshold: 0.5,
 };
 
 const pixabayReturnData = new PixabayAPI();
 
-const lightbox = new SimpleLightbox('.photo-card a');
+// const lightbox = new SimpleLightbox('.photo-card a');
 
 searchFormEl.addEventListener('submit', handlerSearchImages);
 
@@ -36,7 +36,6 @@ function handlerSearchImages(e) {
   pixabayReturnData
     .searchImages()
     .then(data => {
-      console.log(data);
       if (data.total === 0) {
         Notiflix.Notify.failure(
           'Sorry, there are no images matching your search query. Please try again.'
@@ -44,14 +43,14 @@ function handlerSearchImages(e) {
         return;
       }
       galleryListEl.innerHTML = createGallaryCards(data.hits);
-      lightbox.open();
-      Notiflix.Notify.success(`Hooray! We found ${data.totalHits} images.`);
       observer.observe(targetEl);
+      // lightbox.open();
+      Notiflix.Notify.success(`Hooray! We found ${data.totalHits} images.`);
     })
     .catch(error => console.log(error));
 }
 
-let observer = new IntersectionObserver(handlerLoadMoreImages, options);
+const observer = new IntersectionObserver(handlerLoadMoreImages, options);
 
 function handlerLoadMoreImages(entries, observer) {
   entries.forEach(entry => {
@@ -76,7 +75,7 @@ function handlerLoadMoreImages(entries, observer) {
               createGallaryCards(data.hits)
             );
 
-            lightbox.refresh();
+            // lightbox.refresh();
           }
           // const { height: cardHeight } = document
           //   .querySelector(".gallery")
