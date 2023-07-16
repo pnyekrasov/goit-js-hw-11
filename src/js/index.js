@@ -34,6 +34,7 @@ function handlerSearchImages(e) {
   }
 
   pixabayReturnData.query = textInput;
+  // pixabayReturnData.page = 1;
   pixabayReturnData
     .searchImages()
     .then(({ data }) => {
