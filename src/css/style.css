@@ -107,7 +107,7 @@ form.search-form button:hover {
 
 .photo-card {
   flex-basis: calc((100% - ((var(--carts)) - 1) * var(--gap)) / var(--carts));
-  max-height: 231px;
+  height: 231px;
 }
 
 .photo {

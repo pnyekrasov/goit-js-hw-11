@@ -5,13 +5,15 @@ import { PixabayAPI } from './pixabay-api';
 
 const searchFormEl = document.querySelector('.search-form');
 const galleryListEl = document.querySelector('.gallery');
-const targetEl = document.querySelector('.js-load-line');
+let targetEl = document.querySelector('.js-guard');
 
-const options = {
+let options = {
   root: null,
-  rootMargin: '200px',
+  rootMargin: '300px',
   threshold: 1,
 };
+
+let observer = new IntersectionObserver(handlerLoadMoreImages, options);
 
 const pixabayReturnData = new PixabayAPI();
 
@@ -19,8 +21,12 @@ const lightbox = new SimpleLightbox('.photo-card a');
 
 searchFormEl.addEventListener('submit', handlerSearchImages);
 
-function handlerSearchImages(e) {
+async function handlerSearchImages(e) {
   e.preventDefault();
+
+  pixabayReturnData.page = 1;
+  galleryListEl.innerHTML = '';
+  observer.unobserve(targetEl);
 
   const {
     elements: { searchQuery },
@@ -34,36 +40,42 @@ function handlerSearchImages(e) {
   }
 
   pixabayReturnData.query = textInput;
-  // pixabayReturnData.page = 1;
-  pixabayReturnData
-    .searchImages()
-    .then(({ data }) => {
-      if (data.total === 0) {
-        Notiflix.Notify.failure(
-          'Sorry, there are no images matching your search query. Please try again.'
-        );
-        return;
-      }
-      galleryListEl.innerHTML = createGallaryCards(data.hits);
 
-      lightbox.open();
+  try {
+    const { data } = await pixabayReturnData.searchImages();
 
-      Notiflix.Notify.success(`Hooray! We found ${data.totalHits} images.`);
+    if (data.total === 0) {
+      Notiflix.Notify.failure(
+        'Sorry, there are no images matching your search query. Please try again.'
+      );
+      return;
+    }
 
-      observer.observe(targetEl);
-    })
-    .catch(error => console.log(error));
+    galleryListEl.innerHTML = createGallaryCards(data.hits);
+
+    lightbox.refresh();
+
+    Notiflix.Notify.success(`Hooray! We found ${data.totalHits} images.`);
+
+    observer.observe(targetEl);
+  } catch (error) {
+    console.log(error);
+  }
 }
-
-const observer = new IntersectionObserver(handlerLoadMoreImages, options);
 
 function handlerLoadMoreImages(entries, observer) {
   entries.forEach(entry => {
     if (entry.isIntersecting) {
       pixabayReturnData.page += 1;
+
       pixabayReturnData
         .searchImages()
         .then(({ data }) => {
+          galleryListEl.insertAdjacentHTML(
+            'beforeend',
+            createGallaryCards(data.hits)
+          );
+
           if (
             pixabayReturnData.page ===
             Math.ceil(data.totalHits / pixabayReturnData.per_page)
@@ -74,10 +86,9 @@ function handlerLoadMoreImages(entries, observer) {
             observer.unobserve(targetEl);
           }
 
-          galleryListEl.insertAdjacentHTML(
-            'beforeend',
-            createGallaryCards(data.hits)
-          );
+          smoothScroll();
+
+          lightbox.refresh();
         })
         .catch(error => console.log(error));
     }
@@ -116,4 +127,14 @@ function createGallaryCards(array) {
       </li>`
     )
     .join('');
+}
+
+function smoothScroll() {
+  const { height: cardHeight } = document
+    .querySelector('.gallery')
+    .firstElementChild.getBoundingClientRect();
+  window.scrollBy({
+    top: cardHeight * 2,
+    behavior: 'smooth',
+  });
 }
