@@ -24,9 +24,9 @@ searchFormEl.addEventListener('submit', handlerSearchImages);
 async function handlerSearchImages(e) {
   e.preventDefault();
 
+  observer.unobserve(targetEl);
   pixabayReturnData.page = 1;
   galleryListEl.innerHTML = '';
-  observer.unobserve(targetEl);
 
   const {
     elements: { searchQuery },
@@ -42,20 +42,22 @@ async function handlerSearchImages(e) {
   pixabayReturnData.query = textInput;
 
   try {
-    const { data } = await pixabayReturnData.searchImages();
+    const {
+      data: { total, totalHits, hits },
+    } = await pixabayReturnData.searchImages();
 
-    if (data.total === 0) {
+    if (total === 0) {
       Notiflix.Notify.failure(
         'Sorry, there are no images matching your search query. Please try again.'
       );
       return;
     }
 
-    galleryListEl.innerHTML = createGallaryCards(data.hits);
+    galleryListEl.innerHTML = createGallaryCards(hits);
 
     lightbox.refresh();
 
-    Notiflix.Notify.success(`Hooray! We found ${data.totalHits} images.`);
+    Notiflix.Notify.success(`Hooray! We found ${totalHits} images.`);
 
     observer.observe(targetEl);
   } catch (error) {
@@ -64,33 +66,33 @@ async function handlerSearchImages(e) {
 }
 
 function handlerLoadMoreImages(entries, observer) {
-  entries.forEach(entry => {
+  entries.forEach(async entry => {
     if (entry.isIntersecting) {
       pixabayReturnData.page += 1;
 
-      pixabayReturnData
-        .searchImages()
-        .then(({ data }) => {
-          galleryListEl.insertAdjacentHTML(
-            'beforeend',
-            createGallaryCards(data.hits)
+      try {
+        const {
+          data: { totalHits, hits },
+        } = await pixabayReturnData.searchImages();
+
+        galleryListEl.insertAdjacentHTML('beforeend', createGallaryCards(hits));
+
+        smoothScroll();
+
+        if (
+          pixabayReturnData.page ===
+          Math.ceil(totalHits / pixabayReturnData.per_page)
+        ) {
+          Notiflix.Notify.info(
+            "We're sorry, but you've reached the end of search results."
           );
+          observer.unobserve(targetEl);
+        }
 
-          if (
-            pixabayReturnData.page ===
-            Math.ceil(data.totalHits / pixabayReturnData.per_page)
-          ) {
-            Notiflix.Notify.info(
-              "We're sorry, but you've reached the end of search results."
-            );
-            observer.unobserve(targetEl);
-          }
-
-          smoothScroll();
-
-          lightbox.refresh();
-        })
-        .catch(error => console.log(error));
+        lightbox.refresh();
+      } catch (error) {
+        console.log(error);
+      }
     }
   });
 }
