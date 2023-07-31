@@ -13,15 +13,15 @@ let options = {
   threshold: 1,
 };
 
-let observer = new IntersectionObserver(handlerLoadMoreImages, options);
+let observer = new IntersectionObserver(handleLoadMoreImages, options);
 
 const pixabayReturnData = new PixabayAPI();
 
 const lightbox = new SimpleLightbox('.photo-card a');
 
-searchFormEl.addEventListener('submit', handlerSearchImages);
+searchFormEl.addEventListener('submit', handleSearchImages);
 
-async function handlerSearchImages(e) {
+async function handleSearchImages(e) {
   e.preventDefault();
 
   observer.unobserve(targetEl);
@@ -65,7 +65,7 @@ async function handlerSearchImages(e) {
   }
 }
 
-function handlerLoadMoreImages(entries, observer) {
+function handleLoadMoreImages(entries, observer) {
   entries.forEach(async entry => {
     if (entry.isIntersecting) {
       pixabayReturnData.page += 1;
